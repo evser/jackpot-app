@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'com.jackpot'
+version = '0.0.1-SNAPSHOT'
+
+sourceCompatibility = '21'
+
+// Configuration for Lombok
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+// Repositories
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+    // Spring Boot Starters
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    // Jackson (explicitly added, though starter-web includes it)
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    // Database (Runtime only)
+    runtimeOnly 'com.h2database:h2'
+
+    // Utilities
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Test Dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+}
+
+// Configure the test task to use JUnit 5
+tasks.withType(Test) {
+    useJUnitPlatform()
+}

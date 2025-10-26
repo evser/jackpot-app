@@ -1,0 +1,63 @@
+# Docker Compose file for launching the Jackpot Service and Kafka
+version: '3.8'
+
+services:
+  # 1. Zookeeper Service
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  # 2. Kafka Service (depends on Zookeeper)
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      # Port for local development
+      - "9092:9092"
+      # Port for inter-container communication
+      - "29092:29092"
+    environment:
+      # --- Zookeeper Configuration ---
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      # -------------------------------
+
+      # Listeners
+      KAFKA_LISTENERS: 'INTERNAL://kafka:29092,EXTERNAL://0.0.0.0:9092'
+      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka:29092,EXTERNAL://localhost:9092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
+
+      # Auto-create the topic
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+  # Jackpot Service Application
+  jackpot-app:
+    container_name: jackpot-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+    environment:
+      # Override application.properties at runtime
+      # 1. Activate the 'kafka' profile to use the real producer/consumer
+      SPRING_PROFILES_ACTIVE: kafka
+      # 2. Tell the app to connect to Kafka using the INTERNAL listener
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: 'kafka:29092'
+      # 3. Keep the H2 console enabled
+      SPRING_H2_CONSOLE_ENABLED: 'true'
