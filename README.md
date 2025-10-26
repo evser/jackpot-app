@@ -31,13 +31,13 @@ This is the simplest way to run the application. It bypasses Kafka entirely and 
    ```bash
    # On macOS/Linux
    # Make the wrapper executable (only need to do this once)
-    chmod +x ./gradlew
+     chmod +x ./gradlew
    # This will build and run the application.
    # It uses the 'kafka' profile by default in application.properties
     ./gradlew bootRun
    
    # On Windows
-    .\gradlew bootRun
+     .\gradlew bootRun
    ```
 
 The application will be available at `http://localhost:8080`.
