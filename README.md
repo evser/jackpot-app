@@ -32,11 +32,11 @@ This is the simplest way to run the application. It bypasses Kafka entirely and 
    # On macOS/Linux
    # Make the wrapper executable (only need to do this once)
     chmod +x ./gradlew
-    # This will build and run the application.
-    # It uses the 'kafka' profile by default in application.properties
+   # This will build and run the application.
+   # It uses the 'kafka' profile by default in application.properties
     ./gradlew bootRun
    
-    # On Windows
+   # On Windows
     .\gradlew bootRun
    ```
 
